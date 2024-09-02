@@ -1,0 +1,33 @@
+Texas Instruments PTP Boundary Clcok Internal Sync Monitor
+==========================================================
+
+Required properties:
+- compatible       : Should be
+                        "ti,am57-bc" for AM57xx SoCs
+Optional properties:
+- pps-sel0-gpios	: GPIO specifier, used to select PPS BC mux output
+- pps-sel1-gpios	: GPIO specifier, used to select PPS BC mux output
+
+Example:
+========
+
+In am57xx-idk-common.dts
+	ptp_bc: ptp_bc {
+		compatible = "ti,am57-bc";
+		status = "disabled";
+	};
+
+To enable for am572x-idk, in am572x-idk.dts:
+
+&ptp_bc {
+	status = "okay";
+};
+
+To enable for am571x-idk-pps, in am572x-idk-pps.dtso:
+
+&ptp_bc {
+	pps-sel0-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+	pps-sel1-gpios = <&gpio6 7 GPIO_ACTIVE_HIGH>;
+
+	status = "okay";
+};
