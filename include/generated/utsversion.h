@@ -1,1 +1,0 @@
-#define UTS_VERSION "#4 SMP Thu Sep  5 17:16:07 IST 2024"
