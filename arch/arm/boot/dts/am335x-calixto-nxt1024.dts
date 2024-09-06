@@ -1,0 +1,592 @@
+/*
+ * Copyright (C) 2023 Calixto Systems Pvt Ltd - https://www.calixtosystems.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/*
+ * AM335x CALIXTO VERSA NXT SOM
+ * https://www.calixtosystems.com/
+ * Modified from am335x-evmsk
+ * Modified by Vipin Vijayan <vipin.v@calixto.in>
+ */
+
+/dts-v1/;
+
+#include "am33xx.dtsi"
+#include <dt-bindings/pwm/pwm.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	model = "CALIXTO-AM335X-NXT";
+	compatible = "ti,am335x-calixto-nxt", "ti,am33xx";
+
+	cpus {
+		cpu@0 {
+			cpu0-supply = <&vdd_mpu_supply>;
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>; /* 1024 MB */
+	};
+	
+	aliases {
+		serial0 = &uart0;
+	};
+	
+	chosen {
+		stdout-path = &uart0;
+	};
+
+	vmmcsd_fixed: fixedregulator1 {
+                compatible = "regulator-fixed";
+                regulator-name = "vmmcsd-regulator";
+                regulator-min-microvolt = <3300000>;
+                regulator-max-microvolt = <3300000>;
+                enable-active-high;
+                regulator-always-on;
+        };
+
+        vdd_mpu_supply: fixedregulator2 {
+                compatible = "regulator-fixed";
+                regulator-name = "vdd-mpu-regulator";
+                regulator-min-microvolt = <1262000>;
+                regulator-max-microvolt = <1262000>;
+                regulator-boot-on;
+                regulator-always-on;
+        };
+
+	core_audio_supply: fixedregulator-v3_3d  {
+                compatible = "regulator-fixed";
+                regulator-name = "v3_3d";
+                regulator-min-microvolt = <3300000>;
+                regulator-max-microvolt = <3300000>;
+                regulator-boot-on;
+        };
+
+        io_audio_supply: fixedregulator-v1_8d  {
+                compatible = "regulator-fixed";
+                regulator-name = "v1_8d"; 
+                regulator-min-microvolt = <1800000>;
+                regulator-max-microvolt = <1800000>;
+                regulator-boot-on;
+        };
+
+	leds {
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&user_leds_default>;
+		pinctrl-1 = <&user_leds_sleep>;
+
+		compatible = "gpio-leds";
+
+		led1 {
+			label = "led1";
+			gpios = <&gpio3 17 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "heartbeat";
+			default-state = "off";
+		};
+
+		led2 {
+			label = "led2";
+			gpios = <&gpio3 18 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "heartbeat";
+			default-state = "off";
+		};
+	};
+	
+	
+	gpio_buttons: gpio_buttons0 {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_keys_s0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		switch1 {
+			label = "button0";
+			linux,code = <0x100>;
+			gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+		};
+	};
+	
+	panel {
+		compatible = "newhaven,nhd-4.3-480272ef-atxl";
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&lcd_pins_default>;
+		pinctrl-1 = <&lcd_pins_sleep>;
+		port {
+			panel_0: endpoint@0 {
+				remote-endpoint = <&lcdc_0>;
+			};
+		};
+	};
+        
+        sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "AM335x-EVM";
+		simple-audio-card,widgets =
+			"Headphone", "Headphone Jack",
+			"Line", "Line In";
+		simple-audio-card,routing =
+			"Headphone Jack",	"HPLOUT",
+			"Headphone Jack",	"HPROUT",
+			"LINE1L",		"Line In",
+			"LINE1R",		"Line In";
+		simple-audio-card,format = "dsp_b";
+		simple-audio-card,bitclock-master = <&sound_master>;
+		simple-audio-card,frame-master = <&sound_master>;
+		simple-audio-card,bitclock-inversion;
+
+		simple-audio-card,cpu {
+			sound-dai = <&mcasp0>;
+		};
+
+		sound_master: simple-audio-card,codec {
+			sound-dai = <&tlv320aic3106>;
+			system-clock-frequency = <12000000>;
+		};
+	};
+
+};
+
+&am33xx_pinmux {
+	
+	lcd_pins_default: lcd_pins_default {
+                pinctrl-single,pins = <
+                	AM33XX_PADCONF(AM335X_PIN_LCD_DATA0, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA1, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA2, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA3, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA4, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA5, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA6, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA7, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA8, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA9, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA10, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA11, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA12, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA13, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA14, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA15, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_VSYNC, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_HSYNC, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_PCLK, PIN_OUTPUT, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_LCD_AC_BIAS_EN, PIN_OUTPUT, MUX_MODE0)
+                >;
+         };
+
+	 lcd_pins_sleep: lcd_pins_sleep {
+                pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA0, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA1, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA2, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA3, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA4, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA5, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA6, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA7, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA8, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA9, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA10, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA11, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA12, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA13, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA14, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA15, PULL_DISABLE, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_VSYNC, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_HSYNC, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_PCLK, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_LCD_AC_BIAS_EN, PIN_INPUT_PULLDOWN, MUX_MODE7)
+                >;
+        };
+
+	user_leds_default: user_leds_default {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKR, PIN_OUTPUT_PULLDOWN, MUX_MODE7 ) /* mcasp0_ahclkr.gpio3_17 */
+			AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKR, PIN_OUTPUT_PULLDOWN, MUX_MODE7 )  /* mcasp0_aclkr.gpio3_18 */
+		>;
+	};
+
+	user_leds_sleep: user_leds_sleep {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKR, PIN_INPUT_PULLDOWN, MUX_MODE7 ) /* mcasp0_ahclkr.gpio3_17 */
+			AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKR, PIN_INPUT_PULLDOWN, MUX_MODE7 )  /* mcasp0_aclkr.gpio3_18 */
+		>;
+	};
+
+	gpio_keys_s0: gpio_keys_s0 {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_MCASP0_FSR, PIN_INPUT_PULLDOWN, MUX_MODE7 ) /* mcasp0_fsr.gpio3_19 */
+		>;
+	};
+
+	uart0_pins: pinmux_uart0_pins {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_UART0_RXD, PIN_INPUT_PULLUP, MUX_MODE0)	/* uart0_rxd.uart0_rxd */
+			AM33XX_PADCONF(AM335X_PIN_UART0_TXD, PIN_OUTPUT_PULLDOWN, MUX_MODE0)	/* uart0_txd.uart0_txd */
+		>;
+	};
+	
+        i2c0_pins: pinmux_i2c0_pins {
+               pinctrl-single,pins = <
+                       AM33XX_PADCONF(AM335X_PIN_I2C0_SDA, PIN_INPUT_PULLUP, MUX_MODE0)    /* i2c0_sda.i2c0_sda */
+                       AM33XX_PADCONF(AM335X_PIN_I2C0_SCL, PIN_INPUT_PULLUP, MUX_MODE0)    /* i2c0_scl.i2c0_scl */
+               >;
+        };
+
+        uart4_pins: pinmux_uart4_pins {
+               pinctrl-single,pins = <
+                       AM33XX_PADCONF(AM335X_PIN_UART0_CTSN, PIN_INPUT_PULLUP, MUX_MODE1)     /* uart0_ctsn.uart4_rxd */
+                       AM33XX_PADCONF(AM335X_PIN_UART0_RTSN, PIN_OUTPUT_PULLDOWN, MUX_MODE1)  /* uart0_rtsn.uart4_txd */
+               >;
+        };
+
+        uart3_pins: pinmux_uart3_pins {
+               pinctrl-single,pins = <
+                       AM33XX_PADCONF(AM335X_PIN_SPI0_CS1, PIN_INPUT_PULLUP, MUX_MODE1)  /* spi0_cs1.uart3_rxd  */
+                       AM33XX_PADCONF(AM335X_PIN_MII1_RXD2, PIN_OUTPUT_PULLDOWN, MUX_MODE1)  /* mii1_rxd2.uart3_txd */
+               >;
+        };
+
+        mmc1_pins_default: pinmux_mmc1_pins {
+                pinctrl-single,pins = <
+                        AM33XX_PADCONF(AM335X_PIN_MMC0_DAT0, PIN_INPUT_PULLUP, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT1, PIN_INPUT_PULLUP, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT2, PIN_INPUT_PULLUP, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT3, PIN_INPUT_PULLUP, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_CMD, PIN_INPUT_PULLUP, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_CLK, PIN_INPUT_PULLUP, MUX_MODE0)
+                        AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKX, PIN_INPUT, MUX_MODE7)           /* mcasp0_aclkx.gpio3_14 */
+                >;
+        };
+
+	mmc1_pins_sleep: pinmux_mmc1_pins_sleep {
+                pinctrl-single,pins = <
+                        AM33XX_PADCONF(AM335X_PIN_MMC0_DAT0, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT1, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT2, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT3, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_CMD, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MMC0_CLK, PIN_INPUT_PULLDOWN, MUX_MODE7)
+                        AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKX, PIN_INPUT, MUX_MODE7)           /* mcasp0_aclkx.gpio3_14 */
+                >;
+        };
+
+	emmc_pins: pinmux_emmc_pins {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_GPMC_CLK, PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_clk.mmc2_clk */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_CSN3,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_csn3.mmc2_cmd */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD12,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad12.mmc2_dat0 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD13,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad13.mmc2_dat1 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD14,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad14.mmc2_dat2 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD15,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad15.mmc2_dat3 */
+		>;
+	};
+
+	cpsw_default: cpsw_default {
+		pinctrl-single,pins = <
+			/* Slave 1 */
+			AM33XX_PADCONF(AM335X_PIN_MII1_CRS, PIN_INPUT_PULLDOWN, MUX_MODE1)      /* mii1_crs.rmii1_crs_dv */
+			AM33XX_PADCONF(AM335X_PIN_MII1_RX_ER, PIN_INPUT_PULLDOWN, MUX_MODE1)    /* mii1_rxerr.mii1_rxerr */
+			AM33XX_PADCONF(AM335X_PIN_MII1_TX_EN, PIN_OUTPUT_PULLDOWN, MUX_MODE1)    /* mii1_txen.mii1_txen   */
+			AM33XX_PADCONF(AM335X_PIN_MII1_TXD1, PIN_OUTPUT_PULLDOWN, MUX_MODE1)    /* mii1_txd1.mii1_txd1   */
+			AM33XX_PADCONF(AM335X_PIN_MII1_TXD0, PIN_OUTPUT_PULLDOWN, MUX_MODE1)    /* mii1_txd0.mii1_txd0   */
+			AM33XX_PADCONF(AM335X_PIN_MII1_RXD1, PIN_INPUT_PULLDOWN, MUX_MODE1)     /* mii1_rxd1.mii1_rxd2   */
+			AM33XX_PADCONF(AM335X_PIN_MII1_RXD0, PIN_INPUT_PULLDOWN, MUX_MODE1)     /* mii1_rxd0.mii1_rxd0   */
+			AM33XX_PADCONF(AM335X_PIN_RMII1_REF_CLK, PIN_INPUT_PULLDOWN, MUX_MODE0)  /* rmii1_refclk.rmii1_refclk */
+		>;
+	};
+
+	cpsw_sleep: cpsw_sleep {
+		pinctrl-single,pins = <
+			/* Slave 1 reset value */
+			AM33XX_PADCONF(AM335X_PIN_MII1_CRS, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_RX_ER, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_TX_EN, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_TXD1, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_TXD0, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_RXD1, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_RXD0, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_RMII1_REF_CLK, PIN_INPUT_PULLDOWN, MUX_MODE7)
+		>;
+	};
+
+	davinci_mdio_default: davinci_mdio_default {
+		pinctrl-single,pins = <
+			/* MDIO */
+			AM33XX_PADCONF(AM335X_PIN_MDIO, PIN_INPUT_PULLUP | SLEWCTRL_FAST, MUX_MODE0)
+			AM33XX_PADCONF(AM335X_PIN_MDC, PIN_OUTPUT_PULLUP, MUX_MODE0)
+		>;
+	};
+
+	davinci_mdio_sleep: davinci_mdio_sleep {
+		pinctrl-single,pins = <
+			/* MDIO reset value */
+			AM33XX_PADCONF(AM335X_PIN_MDIO, PIN_INPUT_PULLDOWN, MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MDC, PIN_INPUT_PULLDOWN, MUX_MODE7)
+		>;
+	};
+
+
+
+
+	mcasp0_pins: mcasp0_pins {
+                pinctrl-single,pins = <
+                        AM33XX_PADCONF(AM335X_PIN_MII1_TX_CLK,  PIN_INPUT_PULLDOWN, MUX_MODE6)    /* mii1_txclk.mcasp0_aclkx */
+                        AM33XX_PADCONF(AM335X_PIN_MCASP0_FSX,  PIN_INPUT_PULLDOWN, MUX_MODE0)  /* mcasp0_fsx.mcasp0_fsx   */
+                        AM33XX_PADCONF(AM335X_PIN_MII1_RXD3,  PIN_OUTPUT_PULLDOWN, MUX_MODE6)   /* mii1_rxd3.mcasp0_axr0   */
+                        AM33XX_PADCONF(AM335X_PIN_MCASP0_AXR1,  PIN_INPUT_PULLDOWN, MUX_MODE0) /* mcasp0_axr1.mcasp0_axr1 */
+                >;
+        };
+
+        mcasp0_sleep_pins: mcasp0_sleep_pins {
+                pinctrl-single,pins = <
+                        AM33XX_PADCONF(AM335X_PIN_MII1_TX_CLK, PIN_INPUT_PULLDOWN, MUX_MODE7)
+                        AM33XX_PADCONF(AM335X_PIN_MCASP0_FSX, PIN_INPUT_PULLDOWN, MUX_MODE7)
+                        AM33XX_PADCONF(AM335X_PIN_MII1_RXD3, PIN_INPUT_PULLDOWN, MUX_MODE7)
+                        AM33XX_PADCONF(AM335X_PIN_MCASP0_AXR1, PIN_INPUT_PULLDOWN, MUX_MODE7)
+                >;
+        };
+
+	spi0_pins: pinmux_spi0_pins {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_SPI0_SCLK, PIN_INPUT_PULLUP, MUX_MODE0 ) /* (A17) spi0_sclk.spi0_sclk */
+			AM33XX_PADCONF(AM335X_PIN_SPI0_D0, PIN_INPUT_PULLUP, MUX_MODE0 )   /* (B17) spi0_d0.spi0_d0 */
+			AM33XX_PADCONF(AM335X_PIN_SPI0_D1, PIN_OUTPUT_PULLUP, MUX_MODE0 )  /* (B16) spi0_d1.spi0_d1 */
+			AM33XX_PADCONF(AM335X_PIN_SPI0_CS0, PIN_OUTPUT_PULLUP, MUX_MODE0 ) /* (A16) spi0_cs0.spi0_cs0 */
+		>;
+	};
+
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins>;
+	status = "okay";
+};
+
+&uart3 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&uart3_pins>;
+        status = "okay";
+};
+
+&uart4 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&uart4_pins>;
+        status = "okay";
+};
+
+&i2c0 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&i2c0_pins>;
+        
+        status = "okay";
+        clock-frequency = <400000>;
+	
+	  tlv320aic3106: tlv320aic3106@18 {
+	  	#sound-dai-cells = <0>;
+             	compatible = "ti,tlv320aic3106";
+             	reg = <0x18>;
+             	ai3x-micbias-vg = <1>;
+             	status = "okay";
+
+             	/* Regulators */
+             	AVDD-supply  = <&core_audio_supply>;
+            	IOVDD-supply = <&core_audio_supply>;
+             	DRVDD-supply = <&core_audio_supply>;
+             	DVDD-supply  = <&io_audio_supply>;
+	  };
+	
+	  pcf8563: pcf8563@51 {
+          	compatible = "nxp,pcf8563";
+             	reg = <0x51>;
+          };
+};
+
+&mmc1 {
+	status = "okay";
+	vmmc-supply = <&vmmcsd_fixed>;
+	bus-width = <4>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&mmc1_pins_default>;
+	pinctrl-1 = <&mmc1_pins_sleep>;
+	cd-gpios = <&gpio3 14 GPIO_ACTIVE_LOW>;
+};
+
+&mmc3 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&emmc_pins>;
+        vmmc-supply = <&vmmcsd_fixed>;
+	bus-width = <4>;
+	ti,non-removable;
+	dmas = <&edma_xbar 12 0 1
+                &edma_xbar 13 0 2>;
+        dma-names = "tx", "rx";
+};
+
+&tscadc {
+        status = "okay";
+        tsc {
+                ti,wires = <4>;
+                ti,x-plate-resistance = <200>;
+                ti,coordinate-readouts = <5>;
+                ti,wire-config = <0x00 0x11 0x22 0x33>;
+        };
+        adc {
+                ti,adc-channels = <4 5 6 7>;
+        };
+};
+
+&mcasp0 {
+	  #sound-dai-cells = <0>;
+          pinctrl-names = "default", "sleep";
+          pinctrl-0 = <&mcasp0_pins>;
+          pinctrl-1 = <&mcasp0_sleep_pins>;
+
+          status = "okay";
+
+          op-mode = <0>;          /* MCASP_IIS_MODE */
+          tdm-slots = <2>;
+          /* 16 serializer */
+          serial-dir = <  /* 0: INACTIVE, 1: TX, 2: RX */
+                 1 2 0 0
+          >;
+          tx-num-evt = <32>;
+          rx-num-evt = <32>;
+};
+
+&mac_sw {
+	slaves = <1>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&cpsw_default>;
+	pinctrl-1 = <&cpsw_sleep>;
+	status = "okay";
+};
+
+&davinci_mdio_sw {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&davinci_mdio_default>;
+	pinctrl-1 = <&davinci_mdio_sleep>;
+	
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&cpsw_port1 {
+	phy-handle = <&ethphy0>;
+	phy-mode = "rmii";
+	ti,dual-emac-pvid = <1>;
+};
+
+&cpsw_port2 {
+	status = "disabled";
+};
+
+
+/*&phy_sel {
+	rmii-clock-ext;
+};*/
+
+&rtc {
+	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
+	clock-names = "ext-clk", "int-clk";
+};
+
+&lcdc {
+      	status = "okay";
+      
+	blue-and-red-wiring = "crossed";
+
+	port {
+		lcdc_0: endpoint@0 {
+			remote-endpoint = <&panel_0>;
+		};
+	};
+};
+
+&usb {
+      status = "okay";
+};
+
+&usb_ctrl_mod {
+      status = "okay";
+};
+
+&usb0_phy {
+     status = "okay";
+};
+
+&usb1_phy {
+     status = "okay";
+};
+
+&usb0 {
+     status = "okay";
+     dr_mode = "host";
+};
+
+&usb1 {
+     status = "okay";
+     dr_mode = "otg";
+};
+
+&cppi41dma  {
+     status = "okay";
+};
+
+/*
+ * SPI Flash (1MiB)
+ * 0x000000 - 0x01FFFF : SPL (128KiB)
+ * 0x020000 - 0x09FFFF : U-Boot (512KiB)
+ * 0x0A0000 - 0x0BFFFF : First copy of U-Boot Environment (128KiB)
+ * 0x0C0000 - 0x0DFFFF : Second copy of U-Boot Environment (128KiB)
+ */
+&spi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0_pins>;
+	status = "okay";
+
+	flash: s25fl064k@0 {
+		 #address-cells = <1>;
+		 #size-cells = <1>;
+		 compatible = "st,s25fl064k";
+		 spi-max-frequency = <25000000>;
+		 reg = <0>;
+
+
+		 partition@0 {
+			 label = "u-boot-spl";
+			 reg = <0x000000 0x020000>;
+		 };
+
+
+		 partition@1 {
+			 label = "u-boot";
+			 reg = <0x020000 0x080000>;
+		 };
+
+		 partition@2 {
+			 label = "env1";
+			 reg = <0x0A0000 0x010000>;
+		 };
+
+		 partition@3 {
+			 label = "env2";
+			 reg = <0x0B0000 0x010000>;
+		 };
+
+	};
+};
+
+&wkup_m3_ipc {
+	firmware-name = "am335x-evm-scale-data.bin";
+};
