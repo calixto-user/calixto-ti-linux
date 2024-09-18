@@ -964,7 +964,11 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-calixto-nxt.dtb \
 	am335x-calixto-nxt256.dtb \
 	am335x-calixto-nxt512.dtb \
-	am335x-calixto-nxt1024.dtb 
+	am335x-calixto-nxt1024.dtb \
+	am335x-calixto-stamp-nxt.dtb \
+	am335x-calixto-stamp-nxt256.dtb \
+	am335x-calixto-stamp-nxt512.dtb \
+	am335x-calixto-stamp-nxt1024.dtb 
 dtb-$(CONFIG_ARCH_OMAP4) += \
 	omap4-droid-bionic-xt875.dtb \
 	omap4-droid4-xt894.dtb \

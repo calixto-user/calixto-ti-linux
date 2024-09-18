@@ -54,8 +54,8 @@
         vdd_mpu_supply: fixedregulator2 {
                 compatible = "regulator-fixed";
                 regulator-name = "vdd-mpu-regulator";
-                regulator-min-microvolt = <1262000>;
-                regulator-max-microvolt = <1262000>;
+                regulator-min-microvolt = <912500>;
+		regulator-max-microvolt = <1351500>;
                 regulator-boot-on;
                 regulator-always-on;
         };

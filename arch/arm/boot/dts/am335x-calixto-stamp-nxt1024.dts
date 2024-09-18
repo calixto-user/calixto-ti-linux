@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Calixto Systems Pvt Ltd - https://www.calixtosystems.com/
+ * Copyright (C) 2024 Calixto Systems Pvt Ltd - https://www.calixtosystems.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,7 +7,7 @@
  */
 
 /*
- * AM335x CALIXTO VERSA NXT SOM
+ * AM335x CALIXTO STAMP NXT SOM
  * https://www.calixtosystems.com/
  * Modified from am335x-evmsk
  * Modified by Vipin Vijayan <vipin.v@calixto.in>
@@ -20,8 +20,8 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
-	model = "CALIXTO-AM335X-NXT";
-	compatible = "ti,am335x-calixto-nxt", "ti,am33xx";
+	model = "AM335X-CALIXTO-STAMP-NXT";
+	compatible = "ti,am335x-calixto-stamp-nxt", "ti,am33xx";
 
 	cpus {
 		cpu@0 {
@@ -31,7 +31,7 @@
 
 	memory@80000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x10000000>; /* 256 MB */
+		reg = <0x80000000 0x40000000>; /* 1024 MB */
 	};
 	
 	aliases {
@@ -128,7 +128,7 @@
         
         sound {
 		compatible = "simple-audio-card";
-		simple-audio-card,name = "AM335x-EVM";
+		simple-audio-card,name = "AM335X-CALIXTO-STAMP-NXT";
 		simple-audio-card,widgets =
 			"Headphone", "Headphone Jack",
 			"Line", "Line In";
@@ -148,7 +148,7 @@
 
 		sound_master: simple-audio-card,codec {
 			sound-dai = <&tlv320aic3106>;
-			system-clock-frequency = <12000000>;
+			system-clock-frequency = <24576000>;
 		};
 	};
 
@@ -242,8 +242,8 @@
 
         uart4_pins: pinmux_uart4_pins {
                pinctrl-single,pins = <
-                       AM33XX_PADCONF(AM335X_PIN_UART0_CTSN, PIN_INPUT_PULLUP, MUX_MODE1)     /* uart0_ctsn.uart4_rxd */
-                       AM33XX_PADCONF(AM335X_PIN_UART0_RTSN, PIN_OUTPUT_PULLDOWN, MUX_MODE1)  /* uart0_rtsn.uart4_txd */
+                       AM33XX_PADCONF(AM335X_PIN_MII1_TXD3, PIN_INPUT_PULLUP, MUX_MODE1)     /* gmii_txd3.uart4_rxd */
+                       AM33XX_PADCONF(AM335X_PIN_MII1_TXD2, PIN_OUTPUT_PULLDOWN, MUX_MODE1)  /* gmii_txd2.uart4_txd */
                >;
         };
 
@@ -280,12 +280,12 @@
 
 	emmc_pins: pinmux_emmc_pins {
 		pinctrl-single,pins = <
-			AM33XX_PADCONF(AM335X_PIN_GPMC_CLK, PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_clk.mmc2_clk */
-			AM33XX_PADCONF(AM335X_PIN_GPMC_CSN3,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_csn3.mmc2_cmd */
-			AM33XX_PADCONF(AM335X_PIN_GPMC_AD12,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad12.mmc2_dat0 */
-			AM33XX_PADCONF(AM335X_PIN_GPMC_AD13,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad13.mmc2_dat1 */
-			AM33XX_PADCONF(AM335X_PIN_GPMC_AD14,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad14.mmc2_dat2 */
-			AM33XX_PADCONF(AM335X_PIN_GPMC_AD15,  PIN_INPUT_PULLUP, MUX_MODE3) /* gpmc_ad15.mmc2_dat3 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_CSN1, PIN_INPUT_PULLUP, MUX_MODE3)  /* gpmc_CSN1.mmc1_clk */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_CSN2, PIN_INPUT_PULLUP, MUX_MODE3)  /* gpmc_csn2.mmc1_cmd */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD0,  PIN_INPUT_PULLUP, MUX_MODE3)  /* gpmc_ad0.mmc1_dat0 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD1,  PIN_INPUT_PULLUP, MUX_MODE3)  /* gpmc_ad1.mmc1_dat1 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD2,  PIN_INPUT_PULLUP, MUX_MODE3)  /* gpmc_ad2.mmc1_dat2 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_AD3,  PIN_INPUT_PULLUP, MUX_MODE3)  /* gpmc_ad3.mmc1_dat3 */
 		>;
 	};
 
@@ -332,9 +332,6 @@
 			AM33XX_PADCONF(AM335X_PIN_MDC, PIN_INPUT_PULLDOWN, MUX_MODE7)
 		>;
 	};
-
-
-
 
 	mcasp0_pins: mcasp0_pins {
                 pinctrl-single,pins = <
@@ -420,16 +417,13 @@
 	cd-gpios = <&gpio3 14 GPIO_ACTIVE_LOW>;
 };
 
-&mmc3 {
+&mmc2 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_pins>;
         vmmc-supply = <&vmmcsd_fixed>;
 	bus-width = <4>;
 	ti,non-removable;
-	dmas = <&edma_xbar 12 0 1
-                &edma_xbar 13 0 2>;
-        dma-names = "tx", "rx";
 };
 
 &tscadc {
@@ -490,11 +484,6 @@
 &cpsw_port2 {
 	status = "disabled";
 };
-
-
-/*&phy_sel {
-	rmii-clock-ext;
-};*/
 
 &rtc {
 	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
