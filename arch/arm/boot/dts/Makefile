@@ -703,7 +703,17 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-bonegreen.dtb \
 	am335x-bonegreen-wireless.dtb \
 	am335x-calixto-stamp-nxt.dtb \
+	am335x-calixto-stamp-nxt_256MB.dtb \
+	am335x-calixto-stamp-nxt_512MB.dtb \
+	am335x-calixto-stamp-nxt_1024MB.dtb \
 	am335x-calixto-nxt.dtb \
+	am335x-calixto-nxt_256MB.dtb \
+	am335x-calixto-nxt_512MB.dtb \
+	am335x-calixto-nxt_1024MB.dtb \
+        am335x-calixto-versa-pru.dtb \
+        am335x-calixto-versa-pru_256MB.dtb \
+        am335x-calixto-versa-pru_512MB.dtb \
+        am335x-calixto-versa-pru_1024MB.dtb \
 	am335x-chiliboard.dtb \
 	am335x-cm-t335.dtb \
 	am335x-evm.dtb \
